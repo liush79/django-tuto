@@ -1,29 +1,66 @@
-version: '3.2'
+version: '3'
 
 services:
-  mariadb:
-    image: mariadb
-    restart: always
+  dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
     stdin_open: true
     tty: true
-    ports:
-      - 3306:3306
-    environment:
-      MYSQL_ROOT_PASSWORD: qwer1234!
-      MYSQL_USER: mytest
-      MYSQL_PASSWORD: mytest
-    networks:
-      - mynet
     volumes:
-      - ../mariadb/db:/var/lib/mysql
-
-  adminer:
-    image: adminer
-    restart: always
-    ports:
-      - 8080:8080
+       # - ./src:/workdir/src
+      - ./src:/opt/project
     networks:
       - mynet
+
+  postgres:
+    image: postgres
+    environment:
+      - POSTGRES_DB=mydb
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=qwer1234
+    volumes:
+      - ../postgres:/var/lib/postgresql
+    ports:
+      - "5432:5432"
+    networks:
+      - mynet
+
+  pgadmin4:
+    image: dpage/pgadmin4
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@foo.com
+      - PGADMIN_DEFAULT_PASSWORD=qwer1234
+    ports:
+      - "5555:80"
+    depends_on:
+      - postgres
+    networks:
+      - mynet
+
+#   mariadb:
+#     image: mariadb
+#     restart: always
+#     stdin_open: true
+#     tty: true
+#     ports:
+#       - 3333:3306
+#     environment:
+#       MYSQL_ROOT_PASSWORD: qwer1234!
+#       MYSQL_USER: mytest
+#       MYSQL_PASSWORD: mytest
+#     networks:
+#       - mynet
+#     volumes:
+#       - ../mariadb/db:/var/lib/mysql
+# 
+#   adminer:
+#     image: adminer
+#     restart: always
+#     ports:
+#       - 8080:8080
+#     networks:
+#       - mynet
 
 # You MUST run command 'docker create network mynet'
 networks:
